@@ -6,14 +6,14 @@ A full-stack inventory management system for tracking stock, warehouses, locatio
 
 ## Tech Stack
 
-**Backend**
+### Backend
 - Node.js + Express
 - MongoDB + Mongoose
 - JWT authentication (via HTTP-only cookies)
 - Nodemailer (OTP-based password reset)
 - express-validator
 
-**Frontend**
+### Frontend
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS + shadcn/ui
@@ -23,9 +23,11 @@ A full-stack inventory management system for tracking stock, warehouses, locatio
 ---
 
 ## Project Structure
+
+```
 coreinventory/
 ├── client/ # React frontend (Vite + Tailwind)
-│ ├── public/ #main folder 
+│ ├── public/
 │ ├── src/
 │ │ ├── pages/ # Page components
 │ │ ├── components/ # Reusable UI components
@@ -51,43 +53,35 @@ coreinventory/
 ├── services/
 ├── utils/
 └── scripts/
+```
+
 ---
 
-## Getting Started
+# Getting Started
 
-### Prerequisites
+## Prerequisites
 
 - Node.js v18+
 - MongoDB (local or Atlas)
-- A Gmail account with an [App Password](https://support.google.com/accounts/answer/185833) for email
+- A Gmail account with an [App Password](https://support.google.com/accounts/answer/185833)
 
 ---
 
-### 1. Clone the repository
+# 1. Clone the repository
 
 ```bash
 git clone <your-repo-url>
 cd coreinventory
-```
-
----
-
-### 2. Backend Setup
-
-```bash
+2. Backend Setup
 cd server
 npm install
-```
 
-Create a `.env` file by copying the example:
+Create a .env file:
 
-```bash
 cp .env.example .env
-```
 
 Fill in your values:
 
-```env
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/coreinventory
 JWT_SECRET=your_super_secret_key
@@ -96,200 +90,223 @@ COOKIE_MAX_AGE_MS=604800000
 NODE_ENV=development
 GMAIL_USER=email@gmail.com
 GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
-```
 
 Seed the first admin user:
 
-```bash
 npm run seed:admin
-```
 
-This creates an admin with the following default credentials (change after first login):
+Default admin credentials:
 
-| Field    | Value                    |
-|----------|--------------------------|
-| Login ID | `admin1`                 |
-| Password | `Admin@1234`             |
+Field	Value
+Login ID	admin1
+Password	Admin@1234
 
 Start the backend:
 
-```bash
-# Development (with auto-reload)
 npm run dev
 
-# Production
+or
+
 npm start
-```
 
-The API will be available at `http://localhost:5000`.
+Backend runs at:
 
----
-
-### 3. Frontend Setup
-
-```bash
+http://localhost:5000
+3. Frontend Setup
 cd client
 npm install
-```
 
-Create a `.env` file:
+Create .env file:
 
-```env
 VITE_API_BASE_URL=http://localhost:5000/api
-```
 
-Start the frontend:
+Run frontend:
 
-```bash
 npm run dev
-```
 
-The app will be available at `http://localhost:8080`.
+Frontend runs at:
 
----
+http://localhost:8080
+Features
+Authentication & User Management
 
-## Features
+Users self-register and are placed in pending status
 
-### Authentication & User Management
-- Users self-register and are placed in **pending** status
-- Admin approves or rejects pending users from the Settings page
-- Password reset via 6-digit OTP sent to email
-- Sessions managed via HTTP-only JWT cookies
+Admin approves or rejects pending users
 
-### Roles
-| Role  | Permissions                                       |
-|-------|---------------------------------------------------|
-| Admin | Full access + user approval/rejection             |
-| User  | Access to all inventory features, no user mgmt    |
+Password reset via 6-digit OTP email
 
-### Warehouses & Locations
-- Create and manage multiple warehouses with a short code (2–5 chars)
-- Each warehouse has sub-locations identified by a full code (e.g. `WH1-A01`)
+Authentication via HTTP-only JWT cookies
 
-### Products
-- Manage products with Name, SKU Code, and Unit Cost
-- Track **On Hand** and **Free to Use** quantities
-- Manually adjust stock levels
+Roles
+Role	Permissions
+Admin	Full access + user approval
+User	Inventory operations only
+Warehouses & Locations
 
-### Operations (Receipts & Deliveries)
-Operations move stock into or out of a warehouse.
+Multiple warehouses supported
 
-| Type | Description          |
-|------|----------------------|
-| IN   | Receipt — adds stock |
-| OUT  | Delivery — removes stock |
+Each warehouse has a short code (2–5 chars)
 
-**Status workflow:**
+Locations use full codes like:
 
-```
+WH1-A01
+Products
+
+Manage product name, SKU, and unit cost
+
+Track:
+
+On Hand
+
+Free to Use
+
+Manual stock adjustment available
+
+Operations (Receipts & Deliveries)
+
+Operations move stock in or out of warehouses.
+
+Type	Description
+IN	Receipt – adds stock
+OUT	Delivery – removes stock
+Status Flow
 draft → ready → done
-              ↘ waiting (insufficient stock)
+              ↘ waiting
       ↘ cancelled
-```
 
-- **Draft** — created, editable
-- **Mark Ready** — validates stock availability; moves to `ready` or `waiting` if short
-- **Validate** — finalises the operation and updates stock levels
-- **Cancel** — cancels a draft or ready operation
+Status meaning:
 
-### Move History
-Full audit log of all stock movements, showing product, quantity, type, and linked operation.
+Draft → Editable
 
-### Dashboard
-Overview of receipts and deliveries — total count, late operations, and waiting deliveries.
+Ready → Stock validated
 
----
+Done → Stock updated
 
-## API Reference
+Waiting → Insufficient stock
 
-All endpoints are prefixed with `/api`. Protected routes require a valid JWT cookie.
+Cancelled → Operation cancelled
 
-### Auth — `/api/auth`
-| Method | Endpoint            | Access    | Description               |
-|--------|---------------------|-----------|---------------------------|
-| POST   | `/signup`           | Public    | Register a new user       |
-| POST   | `/login`            | Public    | Login and receive a cookie|
-| POST   | `/logout`           | Protected | Clear session cookie      |
-| GET    | `/me`               | Protected | Get current user info     |
-| POST   | `/forgot-password`  | Public    | Send OTP to email         |
-| POST   | `/verify-otp`       | Public    | Verify OTP, get reset token|
-| POST   | `/reset-password`   | Public    | Set a new password        |
-| GET    | `/pending-users`    | Admin     | List users awaiting approval|
-| PATCH  | `/approve/:userId`  | Admin     | Approve a pending user    |
-| PATCH  | `/reject/:userId`   | Admin     | Reject a pending user     |
+Move History
 
-### Warehouses — `/api/warehouses`
-| Method | Endpoint  | Description              |
-|--------|-----------|--------------------------|
-| GET    | `/`       | List all warehouses      |
-| POST   | `/`       | Create a warehouse       |
-| GET    | `/:id`    | Get warehouse by ID      |
-| PUT    | `/:id`    | Update warehouse         |
-| DELETE | `/:id`    | Delete warehouse         |
+Complete audit log of stock movements including:
 
-### Locations — `/api/locations`
-| Method | Endpoint  | Description              |
-|--------|-----------|--------------------------|
-| GET    | `/`       | List all locations (filterable by `?warehouse=id`) |
-| POST   | `/`       | Create a location        |
-| GET    | `/:id`    | Get location by ID       |
-| PUT    | `/:id`    | Update location          |
-| DELETE | `/:id`    | Delete location          |
+Product
 
-### Products — `/api/products`
-| Method | Endpoint       | Description              |
-|--------|----------------|--------------------------|
-| GET    | `/`            | List all products        |
-| POST   | `/`            | Create a product         |
-| GET    | `/:id`         | Get product by ID        |
-| PUT    | `/:id`         | Update product           |
-| PATCH  | `/:id/stock`   | Manually set stock level |
-| DELETE | `/:id`         | Delete product           |
+Quantity
 
-### Operations — `/api/operations`
-| Method | Endpoint           | Description               |
-|--------|--------------------|---------------------------|
-| GET    | `/`                | List operations (filterable by `?type`, `?status`, `?search`) |
-| POST   | `/`                | Create an operation       |
-| GET    | `/:id`             | Get operation + lines     |
-| PUT    | `/:id`             | Update a draft operation  |
-| PATCH  | `/:id/todo`        | Mark ready (check stock)  |
-| PATCH  | `/:id/validate`    | Validate and update stock |
-| PATCH  | `/:id/cancel`      | Cancel the operation      |
+Operation reference
 
-### Move History — `/api/move-history`
-| Method | Endpoint | Description                                      |
-|--------|----------|--------------------------------------------------|
-| GET    | `/`      | List all stock moves (filterable by `?type`, `?search`) |
+Movement type
 
-### Dashboard — `/api/dashboard`
-| Method | Endpoint | Description              |
-|--------|----------|--------------------------|
-| GET    | `/`      | Get summary stats        |
+Dashboard
 
----
+Displays summary statistics:
 
-## Scripts
+Total receipts
 
-```bash
-# Backend
-npm run dev         # Start with nodemon
-npm start           # Start in production
-npm run seed:admin  # Create the first admin user
+Total deliveries
 
-# Frontend
-npm run dev         # Start dev server
-npm run build       # Production build
-npm run lint        # ESLint
-npm run test        # Run unit tests (Vitest)
-```
+Late operations
 
----
+Waiting deliveries
 
-## Health Check
+API Reference
 
-```
+All endpoints are prefixed with:
+
+/api
+
+Protected routes require JWT cookie authentication.
+
+Auth Routes
+
+/api/auth
+
+Method	Endpoint	Description
+POST	/signup	Register user
+POST	/login	Login
+POST	/logout	Logout
+GET	/me	Current user
+POST	/forgot-password	Send OTP
+POST	/verify-otp	Verify OTP
+POST	/reset-password	Reset password
+GET	/pending-users	List pending users
+PATCH	/approve/:userId	Approve user
+PATCH	/reject/:userId	Reject user
+Warehouses API
+
+/api/warehouses
+
+Method	Endpoint	Description
+GET	/	List warehouses
+POST	/	Create warehouse
+GET	/:id	Get warehouse
+PUT	/:id	Update warehouse
+DELETE	/:id	Delete warehouse
+Locations API
+
+/api/locations
+
+Method	Endpoint	Description
+GET	/	List locations
+POST	/	Create location
+GET	/:id	Get location
+PUT	/:id	Update location
+DELETE	/:id	Delete location
+Products API
+
+/api/products
+
+Method	Endpoint	Description
+GET	/	List products
+POST	/	Create product
+GET	/:id	Get product
+PUT	/:id	Update product
+PATCH	/:id/stock	Adjust stock
+DELETE	/:id	Delete product
+Operations API
+
+/api/operations
+
+Method	Endpoint	Description
+GET	/	List operations
+POST	/	Create operation
+GET	/:id	Get operation
+PUT	/:id	Update draft
+PATCH	/:id/todo	Mark ready
+PATCH	/:id/validate	Validate
+PATCH	/:id/cancel	Cancel
+Move History API
+
+/api/move-history
+
+Method	Endpoint	Description
+GET	/	List stock moves
+Dashboard API
+
+/api/dashboard
+
+Method	Endpoint	Description
+GET	/	Get dashboard stats
+Scripts
+Backend
+npm run dev
+npm start
+npm run seed:admin
+Frontend
+npm run dev
+npm run build
+npm run lint
+npm run test
+Health Check
 GET /api/health
-```
 
-Returns `200 OK` when the server is running.
+Returns:
+
+200 OK
+
+when the server is running.
+
+
+---
