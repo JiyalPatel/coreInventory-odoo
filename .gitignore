@@ -1,1 +1,65 @@
-*.files ot ignore
+# -----------------------------
+# Node dependencies
+# -----------------------------
+node_modules/
+**/node_modules/
+
+# -----------------------------
+# Environment files
+# -----------------------------
+**/.env
+**/.env.local
+client/.env
+server/.env
+
+# allow example env files
+!*.env.example
+!client/.env.example
+!server/.env.example
+
+# -----------------------------
+# Build outputs
+# -----------------------------
+dist/
+build/
+client/dist/
+client/build/
+
+# -----------------------------
+# Logs
+# -----------------------------
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# Editor folders
+# -----------------------------
+.vscode/
+.idea/
+
+# -----------------------------
+# Cache
+# -----------------------------
+.cache/
+.parcel-cache/
+client/.vite/
+
+# -----------------------------
+# Coverage
+# -----------------------------
+coverage/
+
+# -----------------------------
+# Temp
+# -----------------------------
+tmp/
+temp/
