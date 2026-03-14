@@ -35,6 +35,22 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(USER_STATUS),
       default: USER_STATUS.PENDING,
     },
+    passwordResetOtp: {
+      type: String,
+      select: false,
+    },
+    passwordResetOtpExpiry: {
+      type: Date,
+      select: false,
+    },
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetTokenExpiry: {
+      type: Date,
+      select: false,
+    },
   },
   { timestamps: true }
 );
