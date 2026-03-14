@@ -359,10 +359,10 @@ This ensures stock logic is never duplicated across controllers.
 
 | Name | Role |
 |---|---|
-| Person 1 | Frontend — Layout, Dashboard, Auth |
-| Person 2 | Frontend — Products, Receipts |
-| Person 3 | Frontend — Deliveries, Adjustments, Move History |
-| Person 4 | Backend — API, Database, Seed |
+| Jiyal Patel |  |
+| Vraj Vyas |  |
+| Jay Patel |  |
+| Raj Parikh |  |
 
 ---
 
