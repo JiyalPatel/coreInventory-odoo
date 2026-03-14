@@ -23,23 +23,34 @@ A full-stack inventory management system for tracking stock, warehouses, locatio
 ---
 
 ## Project Structure
-
-```
 coreinventory/
-├── client/          # React frontend
-│   └── src/
-│       ├── pages/   # Page components
-│       ├── components/
-│       └── lib/     # API client & utilities
-└── server/          # Express backend
-    ├── controllers/
-    ├── services/
-    ├── models/
-    ├── routes/
-    ├── middlewares/
-    └── scripts/     # Seed scripts
-```
-
+├── client/ # React frontend (Vite + Tailwind)
+│ ├── public/
+│ ├── src/
+│ │ ├── pages/ # Page components
+│ │ ├── components/ # Reusable UI components
+│ │ └── lib/ # API client & utilities
+│ ├── index.html
+│ ├── package.json
+│ ├── package-lock.json
+│ ├── components.json
+│ ├── eslint.config.js
+│ ├── postcss.config.js
+│ ├── tailwind.config.ts
+│ ├── tsconfig.app.json
+│ ├── tsconfig.node.json
+│ ├── vite.config.ts
+│ └── vitest.config.ts
+│
+└── server/ # Express backend
+├── configs/
+├── controllers/
+├── middlewares/
+├── models/
+├── routes/
+├── services/
+├── utils/
+└── scripts/
 ---
 
 ## Getting Started
