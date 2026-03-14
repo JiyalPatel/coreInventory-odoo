@@ -15,14 +15,15 @@ const productRoutes = require("./routes/product.routes");
 const operationRoutes = require("./routes/operation.routes");
 const moveHistoryRoutes = require("./routes/moveHistory.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
+const transferRoutes = require("./routes/transfer.routes");
 
 const app = express();
 
 // ── Core Middleware ──────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: "http://localhost:8080", // Adjust this to your frontend URL
-    credentials: true, // Allow cookies to be sent
+    origin: "http://localhost:8080",
+    credentials: true,
   })
 );
 app.use(express.json());
@@ -36,6 +37,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/operations", operationRoutes);
 app.use("/api/move-history", moveHistoryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/transfers", transferRoutes);
 
 // ── Health Check ─────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {

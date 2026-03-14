@@ -214,6 +214,23 @@ export const moveHistoryApi = {
             `/move-history${qs ? `?${qs}` : ""}`,
         );
     },
+    getLedger: (productId: string) =>
+    request<{ ledger: LedgerEntry[] }>(`/move-history/product/${productId}`),
+};
+
+
+export const transferApi = {
+  list: (params?: { search?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.search) query.set("search", params.search);
+    const qs = query.toString();
+    return request<{ operations: Operation[] }>(`/transfers${qs ? `?${qs}` : ""}`);
+  },
+  create: (body: TransferBody) =>
+    request<{
+      outOperation: { operation: Operation; lines: OperationLine[] };
+      inOperation:  { operation: Operation; lines: OperationLine[] };
+    }>("/transfers", { method: "POST", body: JSON.stringify(body) }),
 };
 
 // Dashboard
@@ -331,4 +348,22 @@ export interface DashboardData {
         waiting: number;
         operations: number;
     };
+}
+
+export interface TransferBody {
+  fromWarehouse: string;
+  toWarehouse: string;
+  scheduleDate: string;
+  lines: Array<{ product: string; quantity: number }>;
+}
+
+export interface LedgerEntry {
+  _id: string;
+  moveType: "IN" | "OUT";
+  quantity: number;
+  balance: number;
+  movedAt: string;
+  operation: { _id: string; reference: string; contact: string };
+  fromLocation?: { _id: string; fullCode: string };
+  toLocation?:   { _id: string; fullCode: string };
 }

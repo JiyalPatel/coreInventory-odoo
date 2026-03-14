@@ -63,7 +63,6 @@ const createOperation = async (
     throw new ApiError(400, "At least one operation line is required");
   }
 
-  // Validate all product IDs exist
   for (const line of lines) {
     const product = await Product.findById(line.product);
     if (!product) throw new ApiError(404, `Product ${line.product} not found`);
@@ -114,13 +113,11 @@ const updateOperation = async (id, { contact, scheduleDate, deliveryAddress, lin
     throw new ApiError(400, "Only draft operations can be edited");
   }
 
-  // Update operation fields
   if (contact !== undefined) operation.contact = contact;
   if (scheduleDate !== undefined) operation.scheduleDate = scheduleDate;
   if (deliveryAddress !== undefined) operation.deliveryAddress = deliveryAddress;
   await operation.save();
 
-  // Replace lines if provided
   if (lines && lines.length > 0) {
     await OperationLine.deleteMany({ operation: id });
     await OperationLine.insertMany(
@@ -140,14 +137,17 @@ const updateOperation = async (id, { contact, scheduleDate, deliveryAddress, lin
   return { operation: populatedOp, lines: populatedLines };
 };
 
-// ── PATCH /todo — Draft → Ready (or Waiting for short-stock OUT) ──────────────
+// ── PATCH /todo — Draft/Waiting → Ready ──────────────────────────────────────
+// FIX: Allow both "draft" AND "waiting" statuses so users can retry after
+// restocking without having to cancel and recreate the operation.
 
 const markTodo = async (id) => {
   const operation = await Operation.findById(id);
   if (!operation) throw new ApiError(404, "Operation not found");
 
-  if (operation.status !== OPERATION_STATUS.DRAFT) {
-    throw new ApiError(400, "Only draft operations can be moved to ready");
+  const allowedStatuses = [OPERATION_STATUS.DRAFT, OPERATION_STATUS.WAITING];
+  if (!allowedStatuses.includes(operation.status)) {
+    throw new ApiError(400, "Only draft or waiting operations can be moved to ready");
   }
 
   const lines = await OperationLine.find({ operation: id }).populate("product");
@@ -156,8 +156,8 @@ const markTodo = async (id) => {
     let hasShort = false;
 
     for (const line of lines) {
-      const product = line.product;
-      if (product.onHand < line.quantity) {
+      const fresh = await Product.findById(line.product._id);
+      if (fresh.onHand < line.quantity) {
         line.isShort = true;
         hasShort = true;
       } else {
@@ -168,7 +168,6 @@ const markTodo = async (id) => {
 
     operation.status = hasShort ? OPERATION_STATUS.WAITING : OPERATION_STATUS.READY;
   } else {
-    // IN operation — no stock check needed
     operation.status = OPERATION_STATUS.READY;
   }
 
@@ -192,7 +191,6 @@ const validateOperation = async (id) => {
 
   const lines = await OperationLine.find({ operation: id }).populate("product");
 
-  // For OUT: re-check stock before committing
   if (operation.type === OPERATION_TYPES.OUT) {
     for (const line of lines) {
       const fresh = await Product.findById(line.product._id);
@@ -205,21 +203,12 @@ const validateOperation = async (id) => {
     }
   }
 
-  // Resolve locations for move history
-  // Use warehouse's first location or a fallback virtual location
-  const warehouse = await Warehouse.findById(operation.warehouse);
+  // Try to find a location for this warehouse — optional, not required
   const warehouseLocations = await Location.find({ warehouse: operation.warehouse });
-
-  // Use first available location; if none, we can't create MoveHistory with real locations
-  // The spec says fromLocation/toLocation are required — use the warehouse's first location
-  // For IN: from=virtual supplier → to=warehouse location
-  // For OUT: from=warehouse location → to=virtual delivery
-  // Since the spec doesn't define a "supplier" or "delivery" virtual location,
-  // we use the same warehouse location for both sides when only one exists.
-  // In production, you'd pick the exact bin. For now: use first available location.
   const warehouseLocation = warehouseLocations[0] || null;
 
-  // Commit stock changes and create MoveHistory
+  // FIX: Always create MoveHistory — fromLocation/toLocation are now optional
+  // on the model so this works even if no locations have been set up yet.
   for (const line of lines) {
     const product = await Product.findById(line.product._id);
 
@@ -231,17 +220,14 @@ const validateOperation = async (id) => {
 
     await product.save();
 
-    // Create MoveHistory only when locations are available
-    if (warehouseLocation) {
-      await MoveHistory.create({
-        operation: operation._id,
-        product: line.product._id,
-        fromLocation: warehouseLocation._id,
-        toLocation: warehouseLocation._id,
-        quantity: line.quantity,
-        moveType: operation.type,
-      });
-    }
+    await MoveHistory.create({
+      operation: operation._id,
+      product: line.product._id,
+      fromLocation: warehouseLocation ? warehouseLocation._id : null,
+      toLocation: warehouseLocation ? warehouseLocation._id : null,
+      quantity: line.quantity,
+      moveType: operation.type,
+    });
   }
 
   operation.status = OPERATION_STATUS.DONE;

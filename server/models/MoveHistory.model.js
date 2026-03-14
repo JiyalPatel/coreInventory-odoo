@@ -13,15 +13,16 @@ const moveHistorySchema = new mongoose.Schema(
       ref: "Product",
       required: [true, "Product is required"],
     },
+    // Optional — warehouses may not have locations configured yet
     fromLocation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Location",
-      required: [true, "From location is required"],
+      default: null,
     },
     toLocation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Location",
-      required: [true, "To location is required"],
+      default: null,
     },
     quantity: {
       type: Number,

@@ -14,7 +14,7 @@ export default function MoveHistoryPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["move-history", type, search],
-    queryFn: () => moveHistoryApi.list({ type: type || undefined, search: search || undefined }),
+    queryFn: () => moveHistoryApi.list({ type: (type && type !== "all") ? type : undefined, search: search || undefined }),
   });
 
   const history = data?.history ?? [];

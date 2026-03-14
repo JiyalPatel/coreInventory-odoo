@@ -6,5 +6,6 @@ const authMiddleware = require("../middlewares/auth.middleware");
 router.use(authMiddleware);
 
 router.get("/", moveHistoryController.getAllMoveHistory);
+router.get("/product/:productId", moveHistoryController.getProductLedger);
 
 module.exports = router;

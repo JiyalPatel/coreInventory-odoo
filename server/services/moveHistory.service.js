@@ -3,7 +3,6 @@ const MoveHistory = require("../models/MoveHistory.model");
 const getAllMoveHistory = async ({ search, type }) => {
   const pipeline = [];
 
-  // Lookup operation to filter by reference/contact
   pipeline.push({
     $lookup: {
       from: "operations",
@@ -14,7 +13,6 @@ const getAllMoveHistory = async ({ search, type }) => {
   });
   pipeline.push({ $unwind: "$operation" });
 
-  // Filters
   const match = {};
   if (type) match.moveType = type;
   if (search) {
@@ -25,7 +23,6 @@ const getAllMoveHistory = async ({ search, type }) => {
   }
   if (Object.keys(match).length > 0) pipeline.push({ $match: match });
 
-  // Lookups for product and locations
   pipeline.push(
     {
       $lookup: {
@@ -44,7 +41,7 @@ const getAllMoveHistory = async ({ search, type }) => {
         as: "fromLocation",
       },
     },
-    { $unwind: { path: "$fromLocation", preserveNullAndEmpty: true } },
+    { $unwind: { path: "$fromLocation", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "locations",
@@ -53,10 +50,9 @@ const getAllMoveHistory = async ({ search, type }) => {
         as: "toLocation",
       },
     },
-    { $unwind: { path: "$toLocation", preserveNullAndEmpty: true } }
+    { $unwind: { path: "$toLocation", preserveNullAndEmptyArrays: true } }
   );
 
-  // Project only needed fields
   pipeline.push({
     $project: {
       _id: 1,
@@ -80,4 +76,76 @@ const getAllMoveHistory = async ({ search, type }) => {
   return MoveHistory.aggregate(pipeline);
 };
 
-module.exports = { getAllMoveHistory };
+/**
+ * Stock ledger for a specific product.
+ * Returns all move history for that product with a running balance.
+ */
+const getProductLedger = async (productId) => {
+  const mongoose = require("mongoose");
+
+  const pipeline = [
+    { $match: { product: new mongoose.Types.ObjectId(productId) } },
+    {
+      $lookup: {
+        from: "operations",
+        localField: "operation",
+        foreignField: "_id",
+        as: "operation",
+      },
+    },
+    { $unwind: "$operation" },
+    {
+      $lookup: {
+        from: "locations",
+        localField: "fromLocation",
+        foreignField: "_id",
+        as: "fromLocation",
+      },
+    },
+    { $unwind: { path: "$fromLocation", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "locations",
+        localField: "toLocation",
+        foreignField: "_id",
+        as: "toLocation",
+      },
+    },
+    { $unwind: { path: "$toLocation", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        quantity: 1,
+        moveType: 1,
+        movedAt: 1,
+        "operation._id": 1,
+        "operation.reference": 1,
+        "operation.contact": 1,
+        "fromLocation._id": 1,
+        "fromLocation.fullCode": 1,
+        "toLocation._id": 1,
+        "toLocation.fullCode": 1,
+      },
+    },
+    { $sort: { movedAt: 1 } },
+  ];
+
+  const moves = await MoveHistory.aggregate(pipeline);
+
+  // Compute running balance oldest → newest
+  let balance = 0;
+  const ledger = moves.map((m) => {
+    if (m.moveType === "IN") {
+      balance += m.quantity;
+    } else {
+      balance -= m.quantity;
+    }
+    return { ...m, balance };
+  });
+
+  // Return newest first for display
+  return ledger.reverse();
+};
+
+// Single export — both functions together
+module.exports = { getAllMoveHistory, getProductLedger };

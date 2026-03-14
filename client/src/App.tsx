@@ -18,6 +18,8 @@ import NotFound from "@/pages/NotFound";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import VerifyOtpPage from "@/pages/VerifyOtpPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import TransferPage from "@/pages/TransferPage";
+import StockLedgerPage from "@/pages/StockLedgerPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,8 @@ const App = () => (
               <Route path="/locations" element={<LocationsPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/operations" element={<OperationsPage />} />
+              <Route path="/transfers" element={<TransferPage />} />
+              <Route path="/stock-ledger" element={<StockLedgerPage />} />
               <Route path="/move-history" element={<MoveHistoryPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>

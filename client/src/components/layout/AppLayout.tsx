@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Warehouse,
-  MapPin,
   Package,
   ArrowDownToLine,
   ArrowUpFromLine,
-  History,
+  ArrowLeftRight,
+  BookOpen,
   Settings,
   LogOut,
   Menu,
@@ -23,10 +23,10 @@ const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/operations?type=IN", icon: ArrowDownToLine, label: "Receipts" },
   { to: "/operations?type=OUT", icon: ArrowUpFromLine, label: "Delivery" },
+  { to: "/transfers", icon: ArrowLeftRight, label: "Transfers" },
   { to: "/warehouses", icon: Warehouse, label: "Warehouses" },
-  { to: "/locations", icon: MapPin, label: "Locations" },
   { to: "/products", icon: Package, label: "Products" },
-  { to: "/move-history", icon: History, label: "Move History" },
+  { to: "/stock-ledger", icon: BookOpen, label: "Stock Ledger" },
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -48,7 +48,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Package className="h-6 w-6 text-sidebar-primary shrink-0" />
         {!collapsed && <span className="text-lg font-bold text-sidebar-foreground">CoreInventory</span>}
       </div>
-      <nav className="flex-1 space-y-1 p-2">
+      <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
         {navItems.map((item) => {
           const isOperationLink = item.to.startsWith("/operations");
           return (
