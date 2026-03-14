@@ -313,25 +313,19 @@ Every stock movement is recorded in the **StockMove ledger**, providing a full h
 | Done | Completed and stock updated |
 | Cancelled | Cancelled with no stock impact |
 
----
+
 
 ## Team
 
 | Name | Responsibility |
 |---|---|
-<<<<<<< HEAD
+
 | Jiyal Patel |  |
 | Vraj Vyas |  |
 | Jay Patel |  |
 | Raj Parikh |  |
-=======
-| Jiyal Patel | Frontend — Layout, Dashboard, Authentication |
-| Vraj Vyas | Frontend — Products and Receipts |
-| Jay Patel | Frontend — Deliveries, Adjustments, Move History |
-| Raj Parikh | Backend — Server logic, database models |
->>>>>>> d98bc6f (refracted readme)
 
----
+
 
 ## License
 
