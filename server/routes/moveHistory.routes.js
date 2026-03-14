@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const dashboardController = require("../controllers/dashboard.controller");
+const moveHistoryController = require("../controllers/moveHistory.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
 router.use(authMiddleware);
 
-router.get("/", dashboardController.getDashboard);
+router.get("/", moveHistoryController.getAllMoveHistory);
 
 module.exports = router;

@@ -7,7 +7,7 @@ node_modules/
 # -----------------------------
 # Environment files
 # -----------------------------
-**/.env
+*.env*
 **/.env.local
 client/.env
 server/.env
