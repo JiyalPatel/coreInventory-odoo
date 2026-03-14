@@ -22,7 +22,7 @@ const app = express();
 // ── Core Middleware ──────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: "http://localhost:8080",
+    origin: "process.env.CLIENT_URL || 'http://localhost:5000',",
     credentials: true,
   })
 );
