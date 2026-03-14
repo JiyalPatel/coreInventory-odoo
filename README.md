@@ -25,7 +25,7 @@ A full-stack inventory management system for tracking stock, warehouses, locatio
 ## Project Structure
 coreinventory/
 ├── client/ # React frontend (Vite + Tailwind)
-│ ├── public/
+│ ├── public/ #main folder 
 │ ├── src/
 │ │ ├── pages/ # Page components
 │ │ ├── components/ # Reusable UI components
